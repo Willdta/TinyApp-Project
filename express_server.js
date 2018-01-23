@@ -7,7 +7,8 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "9sm5xK": "http://www.google.com",
+  "342jsd": "http://facebook.com"
 };
 
 //Random String Generator
@@ -23,6 +24,7 @@ function generateRandomString() {
 
 generateRandomString();
 
+//Allow us to use EJS
 app.set('view engine', 'ejs');
 
 app.get("/", (req, res) => {
@@ -34,8 +36,11 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // debug statement to see POST parameters
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  var shortURL = generateRandomString();
+  console.log(req.body.longURL);
+  urlDatabase[shortURL] = req.body.longURL;
+  console.log(urlDatabase);
+  res.send("Ok");
 });
 
 //URLS INDEX EJS
