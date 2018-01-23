@@ -10,6 +10,19 @@ var urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+//Random String Generator
+function generateRandomString() {
+  var randomKey = '';
+  var keys = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  
+  for (i = 0; i < 6; i++) {
+    randomKey += keys.charAt(Math.floor(Math.random() * keys.length));
+  }
+  return randomKey;
+}
+
+generateRandomString();
+
 app.set('view engine', 'ejs');
 
 app.get("/", (req, res) => {
