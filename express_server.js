@@ -10,7 +10,7 @@ var urlDatabase = {
 app.set('view engine', 'ejs');
 
 app.get("/", (req, res) => {
-  res.end("Hello brah!");
+  res.end("Hello!");
 });
 
 //URLS INDEX EJS
