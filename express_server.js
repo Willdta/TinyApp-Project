@@ -7,8 +7,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
-  "342jsd": "http://facebook.com"
+  "9sm5xK": "http://www.google.com"
 };
 
 //Random String Generator
@@ -35,11 +34,17 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+app.get("/u/:shortURL", (req, res) => {
+	let shortURL = req.params.shortURL
+	let longURL = urlDatabase[shortURL]
+	res.redirect(longURL);
+});
+
 app.post("/urls", (req, res) => {
   var shortURL = generateRandomString();
   console.log(req.body.longURL);
   urlDatabase[shortURL] = req.body.longURL;
-  console.log(urlDatabase);
+  // console.log(urlDatabase);
   res.send("Ok");
 });
 
