@@ -21,8 +21,6 @@ function generateRandomString() {
   return randomKey;
 }
 
-generateRandomString();
-
 //Allow us to use EJS
 app.set('view engine', 'ejs');
 
@@ -30,21 +28,30 @@ app.get("/", (req, res) => {
   res.end("Hello!");
 });
 
+//Form Input
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
 app.get("/u/:shortURL", (req, res) => {
+	
+	//The randomly generated code
 	let shortURL = req.params.shortURL
+	console.log('this is the shortURL: ',shortURL)
+
+	//lighthouselabs.ca
 	let longURL = urlDatabase[shortURL]
+	console.log('This is the Database: ',urlDatabase)
+	console.log(longURL);
 	res.redirect(longURL);
 });
 
 app.post("/urls", (req, res) => {
+  //Implement function to var
   var shortURL = generateRandomString();
   console.log(req.body.longURL);
   urlDatabase[shortURL] = req.body.longURL;
-  // console.log(urlDatabase);
+  console.log(urlDatabase);
   res.send("Ok");
 });
 
@@ -60,14 +67,12 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+//Get JSON data
 app.get('/urls.json', (req, res) => {
 	res.json(urlDatabase);
 });
 
-app.get('/hello', (req, res) => {
-	res.end('<html><body>Hello <b>World</b></body></html>\n');
-});
-
+//What port to host on?
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
