@@ -6,11 +6,15 @@
 </head>
 <body>
 
-	<% include ./partials/_header %>
-
+	<% include partials/_header %>
 	<ul>
 		<li><%= urls[shortURL] %></li>
 	</ul>
+
+	<form method="POST" action="/urls/<%= shortURL %>/update">
+		<input type="text" name="id">
+		<input type="submit" value="Update">
+	</form>
 
 </body>
 </html>
