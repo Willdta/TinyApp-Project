@@ -24,10 +24,10 @@ function generateRandomString() {
 //Allows us to use EJS
 app.set('view engine', 'ejs');
 
-app.use((req, res, next) => {
-	console.log(req.method, req.url);
-	next();
-})
+// app.use((req, res, next) => {
+// 	console.log(req.method, req.url);
+// 	next();
+// })
 
 //Test
 app.get("/", (req, res) => {
@@ -61,7 +61,16 @@ app.post("/urls", (req, res) => {
   res.send("Ok");
 });
 
-//Delete
+//Update URL
+app.post("/urls/:id/update", (req, res) => {
+  var shortURL = req.params.id;
+  let longURL = req.body.id;
+  console.log(longURL)
+  urlDatabase[shortURL] = longURL;
+  res.redirect('/urls');
+});
+
+//Delete URL
 app.post("/urls/:id/delete", (req, res) => {
 console.log(urlDatabase[req.params.id]);
 delete urlDatabase[req.params.id];
