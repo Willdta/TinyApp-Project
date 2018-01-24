@@ -21,11 +21,12 @@ function generateRandomString() {
   return randomKey;
 }
 
-//Allow us to use EJS
+//Allows us to use EJS
 app.set('view engine', 'ejs');
 
+//Test
 app.get("/", (req, res) => {
-  res.end("Hello!");
+  res.end("Hello");
 });
 
 //Form Input
@@ -37,33 +38,35 @@ app.get("/u/:shortURL", (req, res) => {
 	
 	//The randomly generated code
 	let shortURL = req.params.shortURL
-	console.log('this is the shortURL: ',shortURL)
-
-	//lighthouselabs.ca
 	let longURL = urlDatabase[shortURL]
-	console.log('This is the Database: ',urlDatabase)
-	console.log(longURL);
+	console.log('Redirected to.. ',longURL);
 	res.redirect(longURL);
 });
 
 app.post("/urls", (req, res) => {
-  //Implement function to var
+  //Tells us to generate random num for shortURL
   var shortURL = generateRandomString();
+	//Logs whatever we type in the form  
   console.log(req.body.longURL);
+  //Logs random generated num
+  console.log(shortURL);
+  //Assigns random generated num to the url given in form
   urlDatabase[shortURL] = req.body.longURL;
-  console.log(urlDatabase);
   res.send("Ok");
 });
 
-//URLS INDEX EJS
+//urls: urlDatabase points to our object
+//with its keys and values
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
-//urls show
+//Gets long url by inputting its short URL in browser
 app.get("/urls/:id", (req, res) => {
-  let templateVars = { shortURL: req.params.id, urls: urlDatabase };
+	//Pass in second object to let us know what info we
+	//want to grab, in this case the urlDatabase object
+	let templateVars = {shortURL: req.params.id, urls: urlDatabase};
   res.render("urls_show", templateVars);
 });
 
@@ -72,7 +75,7 @@ app.get('/urls.json', (req, res) => {
 	res.json(urlDatabase);
 });
 
-//What port to host on?
+//Hosted port
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
