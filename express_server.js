@@ -24,6 +24,11 @@ function generateRandomString() {
 //Allows us to use EJS
 app.set('view engine', 'ejs');
 
+app.use((req, res, next) => {
+	console.log(req.method, req.url);
+	next();
+})
+
 //Test
 app.get("/", (req, res) => {
   res.end("Hello");
@@ -38,6 +43,7 @@ app.get("/u/:shortURL", (req, res) => {
 	
 	//The randomly generated code
 	let shortURL = req.params.shortURL
+	//It's long URL
 	let longURL = urlDatabase[shortURL]
 	console.log('Redirected to.. ',longURL);
 	res.redirect(longURL);
@@ -53,6 +59,13 @@ app.post("/urls", (req, res) => {
   //Assigns random generated num to the url given in form
   urlDatabase[shortURL] = req.body.longURL;
   res.send("Ok");
+});
+
+//Delete
+app.post("/urls/:id/delete", (req, res) => {
+console.log(urlDatabase[req.params.id]);
+delete urlDatabase[req.params.id];
+	res.redirect('/urls');
 });
 
 //urls: urlDatabase points to our object
