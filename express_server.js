@@ -5,6 +5,9 @@ var PORT = process.env.PORT || 8080; // default port 8080
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
+var cookieParser = require("cookie-parser");
+app.use(cookieParser());
+
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -40,7 +43,6 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-	
 	//The randomly generated code
 	let shortURL = req.params.shortURL
 	//It's long URL
@@ -72,15 +74,21 @@ app.post("/urls/:id/update", (req, res) => {
 
 //Delete URL
 app.post("/urls/:id/delete", (req, res) => {
-console.log(urlDatabase[req.params.id]);
-delete urlDatabase[req.params.id];
+	console.log(urlDatabase[req.params.id]);
+	delete urlDatabase[req.params.id];
 	res.redirect('/urls');
 });
+
+//Cookie
+app.post("/login/", (req, res) => {
+	res.cookie("username", req.body.username);
+	res.redirect('/urls');
+})
 
 //urls: urlDatabase points to our object
 //with its keys and values
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase };
+  let templateVars = { urls: urlDatabase, username: req.cookies.username };
   res.render("urls_index", templateVars);
 });
 
@@ -88,7 +96,7 @@ app.get("/urls", (req, res) => {
 app.get("/urls/:id", (req, res) => {
 	//Pass in second object to let us know what info we
 	//want to grab, in this case the urlDatabase object
-	let templateVars = {shortURL: req.params.id, urls: urlDatabase};
+	let templateVars = {shortURL: req.params.id, urls: urlDatabase, username: req.cookies.username};
   res.render("urls_show", templateVars);
 });
 
