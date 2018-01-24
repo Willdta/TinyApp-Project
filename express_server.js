@@ -83,7 +83,13 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/login/", (req, res) => {
 	res.cookie("username", req.body.username);
 	res.redirect('/urls');
-})
+});
+
+//Logout
+app.post("/logout", (req, res) => {
+	res.clearCookie("username", req.body.username);
+	res.redirect('/urls');
+});
 
 //urls: urlDatabase points to our object
 //with its keys and values
