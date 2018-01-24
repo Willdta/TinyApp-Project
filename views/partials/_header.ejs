@@ -1,6 +1,12 @@
-<header>I'm an imported header</header>
+<header>TinyApp Application</header>
 
 <%= username %>
+
+<form method="POST" action="/logout">
+<% if(username){ %>
+	<input type="submit" value="Logout"> 
+ <% } %>
+</form>
 
 <form method="POST" action="/login">
 	<input type="text" name="username" placeholder="username">
