@@ -6,11 +6,15 @@
 </head>
 <body>
 	
-	<% include ./partials/_header %>
+	<% include partials/_header %>
 
 	<ul>
 		<% for (item in urls) { %>
-			<li>Original: <%= urls[item] + ' Shortened:    ' + item %></li>
+			<li>Original: <%= urls[item] %>
+				<form method="POST" action="/urls/9sm5xK/delete"><%= item %>
+					<input type="button" name="delete" value="Delete">
+				</form>
+			</li>
 		<% } %>
 	</ul>
 
