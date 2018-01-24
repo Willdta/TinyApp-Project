@@ -13,6 +13,7 @@
 			<li>Original: <%= urls[item] %>
 				<form method="POST" action="/urls/<%= item %>/delete"><%= item %>
 					<input type="submit" value="Delete">
+					<a href="/urls/<%= item %>">Edit</a>
 				</form>
 			</li>
 		<% } %>
