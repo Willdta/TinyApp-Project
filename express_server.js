@@ -16,16 +16,16 @@ var urlDatabase = {
 
 //USERS
 const users = { 
-  "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
-  },
- 	"user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
-  }
+  // "userRandomID": {
+  //   id: "userRandomID", 
+  //   email: "user@example.com", 
+  //   password: "purple-monkey-dinosaur"
+  // },
+ 	// "user2RandomID": {
+  //   id: "user2RandomID", 
+  //   email: "user2@example.com", 
+  //   password: "dishwasher-funk"
+  // }
 };
 
 //Random String Generator
@@ -63,13 +63,11 @@ app.get("/u/:shortURL", (req, res) => {
 
 //Registration
 app.get("/register", (req, res) => {
-	
 	res.render("registration");
 });
 
 //Register Post
 app.post("/register", (req, res) => {
-
 	var email = req.body.email;
 	var password = req.body.password;
 
@@ -91,7 +89,7 @@ app.post("/register", (req, res) => {
 	var randomID = generateRandomString();
 	users[randomID] = {id: randomID, email: email, password: password};
 	res.cookie("user_id",randomID);
-	console.log(users);
+	console.log('users array after reg',users);
 	res.redirect('/urls');
 });
 
@@ -123,10 +121,28 @@ app.post("/urls/:id/delete", (req, res) => {
 	res.redirect('/urls');
 });
 
+//Login
+app.get("/login", (req, res) => {
+	// let templateVars = {user: users[req.cookies["user_id"]]};
+	// console.log('users array:', users, '\nthis user:', templateVars);
+	// res.render("login", templateVars);
+	res.render("login");
+});
+
 //Cookie
-app.post("/login/", (req, res) => {
-	res.cookie("username", req.body.username);
-	res.redirect('/urls');
+app.post("/login", (req, res) => {
+	// res.cookie("username", req.body.username);
+	let email = req.body.email;
+	let password = req.body.password;
+
+	for (key in users) {
+		if(users[key].email === email && users[key].password === password) {
+			res.cookie('user_id', key);
+			res.redirect("/urls");
+			return;
+		}
+	}
+	res.status(401).send('nope');
 });
 
 //Logout/Clear Cookies
