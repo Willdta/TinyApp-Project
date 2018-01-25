@@ -1,13 +1,15 @@
 <header>TinyApp Application</header>
 
-<%= user.email %> 
-
 <form method="POST" action="/logout">
+
 <% if(user){ %>
+	<%= user.email %>
 	<input type="submit" value="Logout"> 
+ <% } else { %>
+	<a href="/register">Register Here</a>
+	<a href="">Create an Account Here</a>		
  <% } %>
 </form>
-
 <form method="POST" action="/login">
 	<input type="text" name="user" placeholder="username">
 	<input type="submit" value="Enter">
