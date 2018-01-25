@@ -8,9 +8,24 @@ app.use(bodyParser.urlencoded({extended: true}));
 var cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
+//URLS
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
+};
+
+//USERS
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ 	"user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
 };
 
 //Random String Generator
@@ -27,11 +42,6 @@ function generateRandomString() {
 //Allows us to use EJS
 app.set('view engine', 'ejs');
 
-// app.use((req, res, next) => {
-// 	console.log(req.method, req.url);
-// 	next();
-// })
-
 //Test
 app.get("/", (req, res) => {
   res.end("Hello");
@@ -44,20 +54,45 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
 	//The randomly generated code
-	let shortURL = req.params.shortURL
+	let shortURL = req.params.shortURL;
 	//It's long URL
-	let longURL = urlDatabase[shortURL]
-	console.log('Redirected to.. ',longURL);
+	let longURL = urlDatabase[shortURL];
+	console.log("Redirected to.. ",longURL);
 	res.redirect(longURL);
 });
 
 //Registration
 app.get("/register", (req, res) => {
-	res.render('registration');
+	
+	res.render("registration");
 });
 
+//Register Post
 app.post("/register", (req, res) => {
-	res.send('Passed the form');
+
+	var email = req.body.email;
+	var password = req.body.password;
+
+	for (key in users) {
+		if (users[key].email === email) {
+			console.log('Match found');
+			res.status(400);
+			res.send('found a match');
+			return;
+		}
+	}
+
+	if (email === '' || password === '') {
+		res.status(400);
+		res.send('please enter');
+		return;
+	}
+	
+	var randomID = generateRandomString();
+	users[randomID] = {id: randomID, email: email, password: password};
+	res.cookie("user_id",randomID);
+	console.log(users);
+	res.redirect('/urls');
 });
 
 app.post("/urls", (req, res) => {
@@ -94,7 +129,7 @@ app.post("/login/", (req, res) => {
 	res.redirect('/urls');
 });
 
-//Logout
+//Logout/Clear Cookies
 app.post("/logout", (req, res) => {
 	res.clearCookie("username", req.body.username);
 	res.redirect('/urls');
