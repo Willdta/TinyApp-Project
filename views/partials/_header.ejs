@@ -1,14 +1,14 @@
 <header>TinyApp Application</header>
 
-<%= username %>
+<%= user.email %> 
 
 <form method="POST" action="/logout">
-<% if(username){ %>
+<% if(user){ %>
 	<input type="submit" value="Logout"> 
  <% } %>
 </form>
 
 <form method="POST" action="/login">
-	<input type="text" name="username" placeholder="username">
+	<input type="text" name="user" placeholder="username">
 	<input type="submit" value="Enter">
 </form>
