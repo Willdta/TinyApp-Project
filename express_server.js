@@ -52,9 +52,13 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 //Registration
-app.get("/registration", (req, res) => {
+app.get("/register", (req, res) => {
 	res.render('registration');
-})
+});
+
+app.post("/register", (req, res) => {
+	res.send('Passed the form');
+});
 
 app.post("/urls", (req, res) => {
   //Tells us to generate random num for shortURL
