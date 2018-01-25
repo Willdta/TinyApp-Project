@@ -138,7 +138,7 @@ app.post("/logout", (req, res) => {
 //urls: urlDatabase points to our object
 //with its keys and values
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase, username: req.cookies.username };
+  let templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]]};
   res.render("urls_index", templateVars);
 });
 
@@ -146,7 +146,7 @@ app.get("/urls", (req, res) => {
 app.get("/urls/:id", (req, res) => {
 	//Pass in second object to let us know what info we
 	//want to grab, in this case the urlDatabase object
-	let templateVars = {shortURL: req.params.id, urls: urlDatabase, username: req.cookies.username};
+	let templateVars = {shortURL: req.params.id, urls: urlDatabase, user: users[req.cookies["user_id"]]};
   res.render("urls_show", templateVars);
 });
 
