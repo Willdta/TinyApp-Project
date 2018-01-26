@@ -49,7 +49,13 @@ app.get("/", (req, res) => {
 
 //Form Input
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let templateVars = {urls: urlDatabase, user: users[req.cookies["user_id"]]};
+
+  if (users[req.cookies["user_id"]]) {
+		res.render("urls_new", templateVars);
+  } else {
+  		res.redirect("/login");
+    }
 });
 
 app.get("/u/:shortURL", (req, res) => {
