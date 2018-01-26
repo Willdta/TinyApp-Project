@@ -1,12 +1,16 @@
 var express = require("express");
-const bodyParser = require("body-parser");
-var cookieParser = require("cookie-parser");
-const bcrypt = require('bcrypt');
+var bodyParser = require("body-parser");
+var bcrypt = require('bcrypt');
+var cookieSession = require('cookie-session')
 var app = express();
 var PORT = process.env.PORT || 8080; // default port 8080
 
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+
+app.use(cookieSession({
+  name: 'session',
+  keys: ['ajdkajskdjakdj']
+}));
 
 //URLS
 var urlDatabase = {
@@ -66,9 +70,9 @@ app.get("/", (req, res) => {
 
 //Form Input
 app.get("/urls/new", (req, res) => {
-  let templateVars = {urls: urlDatabase, user: users[req.cookies["user_id"]]};
+  let templateVars = {urls: urlDatabase, user: users[req.session["user_id"]]};
 
-  if (users[req.cookies["user_id"]]) {
+  if (users[req.session["user_id"]]) {
 		res.render("urls_new", templateVars);
   } else {
   		res.redirect("/login");
@@ -92,8 +96,11 @@ app.get("/register", (req, res) => {
 //Register Post
 app.post("/register", (req, res) => {
 	var email = req.body.email;
+	
+	//encrypts password
 	var password = bcrypt.hashSync(req.body.password, 10);
 
+	//Validation
 	for (key in users) {
 		if (users[key].email === email) {
 			console.log('Match found');
@@ -110,7 +117,8 @@ app.post("/register", (req, res) => {
 	
 	var randomID = generateRandomString();
 	users[randomID] = {id: randomID, email: email, password: password};
-	res.cookie("user_id",randomID);
+	// res.cookie("user_id",randomID);
+	req.session.user_id = randomID;
 	console.log('users array after reg',users);
 	console.log(users[randomID]['id']);
 	console.log(password);
@@ -128,7 +136,7 @@ app.post("/urls", (req, res) => {
   urlDatabase[shortURL] = {
   	longURL: req.body.longURL,
   	shortURL: shortURL,
-  	user_ID: req.cookies["user_id"]
+  	user_ID: req.session["user_id"]
   };
 	console.log(urlDatabase[shortURL]);
   res.redirect("/urls");
@@ -150,67 +158,51 @@ app.post("/urls/:id/delete", (req, res) => {
 	res.redirect('/urls');
 });
 
-//Login
+//Render login page
 app.get("/login", (req, res) => {
-	// let templateVars = {user: users[req.cookies["user_id"]]};
-	// console.log('users array:', users, '\nthis user:', templateVars);
-	// res.render("login", templateVars);
 	res.render("login");
 });
 
-//Cookie
+//Checks for valid credentials
 app.post("/login", (req, res) => {
 	let email = req.body.email;
 	let password = req.body.password;
 
 	for (key in users) {
 		if(users[key].email === email && bcrypt.compareSync(password, users[key]["password"])) {
-			res.cookie('user_id', key);
-			// console.log('hashed: ', hash);
+			// res.cookie('user_id', key);
+			req.session.user_id = key;
 			res.redirect("/urls");
 			return;
 		}
 	}
-	res.status(401).send('Not a valid username/password');
+	res.status(401).send("Please enter a valid email and password");
 });
 
 //Logout/Clear Cookies
 app.post("/logout", (req, res) => {
-	res.clearCookie("user_id");
-	res.redirect('/urls');
+	// res.clearCookie("user_id");
+	req.session = null;
+	res.redirect("/urls");
 });
 
-//urls: urlDatabase points to our object
-//with its keys and values
+//Main page checks for user to display their urls
 app.get("/urls", (req, res) => {
-	let validObj = urlsForUser(req.cookies["user_id"]);
-  let templateVars = { urls: validObj, user: users[req.cookies["user_id"]]};
+	let validObj = urlsForUser(req.session["user_id"]);
+  let templateVars = { urls: validObj, user: users[req.session["user_id"]]};
   res.render("urls_index", templateVars);
 });
 
 //Gets long url by inputting its short URL in browser
 app.get("/urls/:id", (req, res) => {
-	//Pass in second object to let us know what info we
-	//want to grab, in this case the urlDatabase object
-	let validObj = urlsForUser(req.cookies["user_id"]);
-	let templateVars = {shortURL: req.params.id, urls: validObj, user: users[req.cookies["user_id"]]};
+	let validObj = urlsForUser(req.session["user_id"]);
+	let templateVars = {shortURL: req.params.id, urls: validObj, user: users[req.session["user_id"]]};
 	
-	console.log('this is the object',validObj);
-	console.log('this is the shorturl',req.params.id);
-	console.log('does it exist',validObj[req.params.id]);	
-
-
 	if (validObj[req.params.id]) {
 		res.render("urls_show", templateVars);	
 	} else {
-		res.send("Doesn't exist");
-	}
-
-});
-
-//Get JSON data
-app.get('/urls.json', (req, res) => {
-	res.json(urlDatabase);
+			res.send("This doesn't belong to you");
+		}
 });
 
 //Hosted port
