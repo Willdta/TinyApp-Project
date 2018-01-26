@@ -7,29 +7,20 @@
 		* {
 			list-style: none;
 		}
-		div {
-			height: 100vh;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-		}
 	</style>
 </head>
 <body>
-	
-<div>
 	<% include partials/_header %>
 	<ul>
 		<% for (item in urls) { %>
 			<li>Long URL: <%= urls[item]['longURL'] %>
 				<form method="POST" action="/urls/<%= item %>/delete">
 						<a href="/u/<%= item %>"><%= item %></a>
-					<input type="submit" value="Delete">
-					<a href="/urls/<%= item %>">Edit</a>
+						<input type="submit" value="Delete">
+						<a href="/urls/<%= item %>">Edit</a>
 				</form>
 			</li>
 		<% } %>
 	</ul>
-</div>
 </body>
 </html>

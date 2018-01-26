@@ -4,24 +4,22 @@
 	<meta charset="UTF-8">
 	<title>Show Url</title>
 	<style>
-		li {
+		* {
 			list-style: none;
-			margin: 0;
-			padding: 0;
 		}
 	</style>
 </head>
-<body>
+	<body>
 
-	<% include partials/_header %>
-	<ul>
-		<li>Your short URL:  <%= shortURL %></li>
-	</ul>
+		<% include partials/_header %>
+		<ul>
+			<li>Your short URL:  <%= shortURL %></li>
+		</ul>
 
-	<form method="POST" action="/urls/<%= shortURL %>/update">
-		<input type="text" name="id">
-		<input type="submit" value="Update">
-	</form>
+		<form method="POST" action="/urls/<%= shortURL %>/update">
+			<input type="text" name="id">
+			<input type="submit" value="Update">
+		</form>
 
-</body>
+	</body>
 </html>
