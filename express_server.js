@@ -1,6 +1,7 @@
 var express = require("express");
 const bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
+const bcrypt = require('bcrypt');
 var app = express();
 var PORT = process.env.PORT || 8080; // default port 8080
 
@@ -91,7 +92,7 @@ app.get("/register", (req, res) => {
 //Register Post
 app.post("/register", (req, res) => {
 	var email = req.body.email;
-	var password = req.body.password;
+	var password = bcrypt.hashSync(req.body.password, 10);
 
 	for (key in users) {
 		if (users[key].email === email) {
@@ -111,7 +112,8 @@ app.post("/register", (req, res) => {
 	users[randomID] = {id: randomID, email: email, password: password};
 	res.cookie("user_id",randomID);
 	console.log('users array after reg',users);
-	console.log(users[randomID]['id'])
+	console.log(users[randomID]['id']);
+	console.log(password);
 	res.redirect('/urls');
 });
 
@@ -162,8 +164,9 @@ app.post("/login", (req, res) => {
 	let password = req.body.password;
 
 	for (key in users) {
-		if(users[key].email === email && users[key].password === password) {
+		if(users[key].email === email && bcrypt.compareSync(password, users[key]["password"])) {
 			res.cookie('user_id', key);
+			// console.log('hashed: ', hash);
 			res.redirect("/urls");
 			return;
 		}
