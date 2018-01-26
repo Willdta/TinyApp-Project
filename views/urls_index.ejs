@@ -10,7 +10,7 @@
 
 	<ul>
 		<% for (item in urls) { %>
-			<li>Original: <%= urls[item] %>
+			<li>Original: <%= urls[item]['longURL'] %>
 				<form method="POST" action="/urls/<%= item %>/delete"><%= item %>
 					<input type="submit" value="Delete">
 					<a href="/urls/<%= item %>">Edit</a>
