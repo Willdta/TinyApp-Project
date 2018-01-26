@@ -3,12 +3,19 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Show Url</title>
+	<style>
+		li {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+		}
+	</style>
 </head>
 <body>
 
 	<% include partials/_header %>
 	<ul>
-		<li><%= urls[shortURL] %></li>
+		<li>Your short URL:  <%= shortURL %></li>
 	</ul>
 
 	<form method="POST" action="/urls/<%= shortURL %>/update">
