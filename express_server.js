@@ -5,28 +5,31 @@ var app = express();
 var PORT = process.env.PORT || 8080; // default port 8080
 
 app.use(bodyParser.urlencoded({extended: true}));
-
 app.use(cookieParser());
 
 //URLS
 var urlDatabase = {
  "b2xVn2": {"longURL": "http://www.lighthouselabs.ca",
-  			"shortURL": "b2xVn2",
-  			"user_ID": "userRandomID"}
+  					"shortURL": "b2xVn2",
+  					"user_ID": "userRandomID"},
+ 
+ "9sm5xK": {"longURL": "http://www.google.com",
+  					"shortURL": "9sm5xK",
+  					"user_ID": "userRandomID"}
 };
 
 //USERS
 const users = { 
-  // "userRandomID": {
-  //   id: "userRandomID", 
-  //   email: "user@example.com", 
-  //   password: "purple-monkey-dinosaur"
-  // },
- 	// "user2RandomID": {
-  //   id: "user2RandomID", 
-  //   email: "user2@example.com", 
-  //   password: "dishwasher-funk"
-  // }
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple"
+  },
+ 	"user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
 };
 
 //Random String Generator
@@ -38,6 +41,18 @@ function generateRandomString() {
     randomKey += keys.charAt(Math.floor(Math.random() * keys.length));
   }
   return randomKey;
+}
+
+//Check for user specificity
+function urlsForUser(id) {
+	var valid = {};
+
+	for (key in urlDatabase) {
+		if (urlDatabase[key]["user_ID"] === id) {
+			valid[key] = urlDatabase[key];
+		}
+	}
+	return valid;
 }
 
 //Allows us to use EJS
@@ -63,7 +78,7 @@ app.get("/u/:shortURL", (req, res) => {
 	//The randomly generated code
 	let shortURL = req.params.shortURL;
 	//It's long URL
-	let longURL = urlDatabase[shortURL];
+	let longURL = urlDatabase[shortURL]["longURL"];
 	console.log("Redirected to.. ",longURL);
 	res.redirect(longURL);
 });
@@ -81,8 +96,7 @@ app.post("/register", (req, res) => {
 	for (key in users) {
 		if (users[key].email === email) {
 			console.log('Match found');
-			res.status(400);
-			res.send('found a match');
+			res.status(400).send('found a match');
 			return;
 		}
 	}
@@ -97,6 +111,7 @@ app.post("/register", (req, res) => {
 	users[randomID] = {id: randomID, email: email, password: password};
 	res.cookie("user_id",randomID);
 	console.log('users array after reg',users);
+	console.log(users[randomID]['id'])
 	res.redirect('/urls');
 });
 
@@ -113,8 +128,8 @@ app.post("/urls", (req, res) => {
   	shortURL: shortURL,
   	user_ID: req.cookies["user_id"]
   };
-  console.log(urlDatabase[shortURL]);
-  res.send("Ok");
+	console.log(urlDatabase[shortURL]);
+  res.redirect("/urls");
 });
 
 //Update URL
@@ -122,7 +137,7 @@ app.post("/urls/:id/update", (req, res) => {
   var shortURL = req.params.id;
   let longURL = req.body.id;
   console.log(longURL)
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL]["longURL"] = longURL;
   res.redirect('/urls');
 });
 
@@ -143,7 +158,6 @@ app.get("/login", (req, res) => {
 
 //Cookie
 app.post("/login", (req, res) => {
-	// res.cookie("username", req.body.username);
 	let email = req.body.email;
 	let password = req.body.password;
 
@@ -166,7 +180,8 @@ app.post("/logout", (req, res) => {
 //urls: urlDatabase points to our object
 //with its keys and values
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]]};
+	let validObj = urlsForUser(req.cookies["user_id"]);
+  let templateVars = { urls: validObj, user: users[req.cookies["user_id"]]};
   res.render("urls_index", templateVars);
 });
 
@@ -174,8 +189,20 @@ app.get("/urls", (req, res) => {
 app.get("/urls/:id", (req, res) => {
 	//Pass in second object to let us know what info we
 	//want to grab, in this case the urlDatabase object
-	let templateVars = {shortURL: req.params.id, urls: urlDatabase, user: users[req.cookies["user_id"]]};
-  res.render("urls_show", templateVars);
+	let validObj = urlsForUser(req.cookies["user_id"]);
+	let templateVars = {shortURL: req.params.id, urls: validObj, user: users[req.cookies["user_id"]]};
+	
+	console.log('this is the object',validObj);
+	console.log('this is the shorturl',req.params.id);
+	console.log('does it exist',validObj[req.params.id]);	
+
+
+	if (validObj[req.params.id]) {
+		res.render("urls_show", templateVars);	
+	} else {
+		res.send("Doesn't exist");
+	}
+
 });
 
 //Get JSON data
