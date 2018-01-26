@@ -1,17 +1,18 @@
 var express = require("express");
+const bodyParser = require("body-parser");
+var cookieParser = require("cookie-parser");
 var app = express();
 var PORT = process.env.PORT || 8080; // default port 8080
 
-const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-var cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
 //URLS
 var urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+ "b2xVn2": {"longURL": "http://www.lighthouselabs.ca",
+  			"shortURL": "b2xVn2",
+  			"user_ID": "userRandomID"}
 };
 
 //USERS
@@ -107,7 +108,12 @@ app.post("/urls", (req, res) => {
   //Logs random generated num
   console.log(shortURL);
   //Assigns random generated num to the url given in form
-  urlDatabase[shortURL] = req.body.longURL;
+  urlDatabase[shortURL] = {
+  	longURL: req.body.longURL,
+  	shortURL: shortURL,
+  	user_ID: req.cookies["user_id"]
+  };
+  console.log(urlDatabase[shortURL]);
   res.send("Ok");
 });
 
@@ -148,7 +154,7 @@ app.post("/login", (req, res) => {
 			return;
 		}
 	}
-	res.status(401).send('nope');
+	res.status(401).send('Not a valid username/password');
 });
 
 //Logout/Clear Cookies
