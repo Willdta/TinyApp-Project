@@ -176,9 +176,9 @@ app.post("/register", (req, res) => {
 			res.status(400).send('This email is already in use');
 			return;
 		}
-	}
+	}		
 
-	if (email === '' || password === '') {
+	if (email === '' || req.body.password === '') {
 		res.status(400).send('Please enter a valid email and password');
 		return;
 	}
