@@ -88,8 +88,23 @@ app.get("/urls/new", (req, res) => {
 //Redirect to Website
 app.get("/u/:shortURL", (req, res) => {
 	var shortURL = req.params.shortURL;
-	var longURL = urlDatabase[shortURL]["longURL"];
-	res.redirect(longURL);
+	var longURL = urlDatabase[shortURL];
+	
+	//Is the user logged in?
+	if (!users[req.session["user_id"]]) {
+		res.send('Please log in');
+	}
+
+	//Does the shortURL exist?
+	else if (!urlDatabase[shortURL]) {
+		res.send("This short URL doesn't exist");
+	}
+	
+	//Redirect if it does
+	else {
+		longURL = urlDatabase[shortURL]["longURL"];
+		res.redirect(longURL);
+	}
 });
 
 //Registration
