@@ -166,9 +166,8 @@ app.get("/register", (req, res) => {
 
 //Register Post
 app.post("/register", (req, res) => {
-	var email = req.body.email;
 	
-	//encrypts password
+	var email = req.body.email;
 	var password = bcrypt.hashSync(req.body.password, 10);
 
 	//Validation
@@ -180,11 +179,10 @@ app.post("/register", (req, res) => {
 	}
 
 	if (email === '' || password === '') {
-		res.status(400);
-		res.send('Please enter a valid email and password');
+		res.status(400).send('Please enter a valid email and password');
 		return;
 	}
-	
+
 	var randomID = generateRandomString();
 	users[randomID] = {id: randomID, email: email, password: password};
 	req.session.user_id = randomID;
