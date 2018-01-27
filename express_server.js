@@ -16,7 +16,7 @@ app.use(cookieSession({
   keys: ['ajdkajskdjakdj']
 }));
 
-//URLS
+//Test urls
 var urlDatabase = {
  "b2xVn2": {"longURL": "http://www.lighthouselabs.ca",
   			"shortURL": "b2xVn2",
@@ -27,7 +27,7 @@ var urlDatabase = {
   			"user_ID": "userRandomID"}
 };
 
-//USERS
+//Test users
 var users = { 
   "userRandomID": {
     id: "userRandomID", 
@@ -41,10 +41,10 @@ var users = {
   }
 };
 
-//Random String Generator
+//Random Alphanumeric Generator
 function generateRandomString() {
   var randomKey = '';
-  var keys = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  var keys = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
   
   for (i = 0; i < 6; i++) {
     randomKey += keys.charAt(Math.floor(Math.random() * keys.length));
@@ -69,10 +69,17 @@ app.set('view engine', 'ejs');
 
 //Test page
 app.get("/", (req, res) => {
-  res.end("Hello");
+  res.end("Hello, welcome to my TinyApp application!");
 });
 
-//Form Input
+//Main page checks for user to display their urls
+app.get("/urls", (req, res) => {
+	var validObj = urlsForUser(req.session["user_id"]);
+  var templateVars = { urls: validObj, user: users[req.session["user_id"]]};
+  res.render("urls_index", templateVars);
+});
+
+//Enter new url to shorten
 app.get("/urls/new", (req, res) => {
   var templateVars = {urls: urlDatabase, user: users[req.session["user_id"]]};
 
@@ -85,59 +92,21 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
-//Redirect to Website
-app.get("/u/:shortURL", (req, res) => {
-	var shortURL = req.params.shortURL;
-	var longURL = urlDatabase[shortURL];
+//Gets urls for the logged in user
+app.get("/urls/:id", (req, res) => {
+	var validObj = urlsForUser(req.session["user_id"]);
+	var templateVars = {shortURL: req.params.id, urls: validObj, user: users[req.session["user_id"]]};
 	
-	//Is the user logged in?
-	if (!users[req.session["user_id"]]) {
-		res.send('Please log in');
-	}
+	//Only show urls for correct logged in user
+	if (validObj[req.params.id]) {
+		res.render("urls_show", templateVars);	
+	} 
 
-	//Does the shortURL exist?
-	else if (!urlDatabase[shortURL]) {
-		res.send("This short URL doesn't exist");
-	}
-	
-	//Redirect if it does
 	else {
-		longURL = urlDatabase[shortURL]["longURL"];
-		res.redirect(longURL);
+		res.send("This doesn't belong to you");
 	}
 });
 
-//Registration
-app.get("/register", (req, res) => {
-	res.render("registration");
-});
-
-//Register Post
-app.post("/register", (req, res) => {
-	var email = req.body.email;
-	
-	//encrypts password
-	var password = bcrypt.hashSync(req.body.password, 10);
-
-	//Validation
-	for (key in users) {
-		if (users[key].email === email) {
-			res.status(400).send('Already in use');
-			return;
-		}
-	}
-
-	if (email === '' || password === '') {
-		res.status(400);
-		res.send('please enter');
-		return;
-	}
-	
-	var randomID = generateRandomString();
-	users[randomID] = {id: randomID, email: email, password: password};
-	req.session.user_id = randomID;
-	res.redirect('/urls');
-});
 
 //post urls
 app.post("/urls", (req, res) => {
@@ -168,6 +137,60 @@ app.post("/urls/:id/delete", (req, res) => {
 	res.redirect('/urls');
 });
 
+//Redirect to Website
+app.get("/u/:shortURL", (req, res) => {
+	var shortURL = req.params.shortURL;
+	var longURL = urlDatabase[shortURL];
+	
+	//Is the user logged in?
+	if (!users[req.session["user_id"]]) {
+		res.send('Please log in to have access to your short urls');
+	}
+
+	//Does the shortURL exist?
+	else if (!urlDatabase[shortURL]) {
+		res.send("This short URL doesn't exist");
+	}
+	
+	//Redirect if it does
+	else {
+		longURL = urlDatabase[shortURL]["longURL"];
+		res.redirect(longURL);
+	}
+});
+
+//Registration
+app.get("/register", (req, res) => {
+	res.render("registration");
+});
+
+//Register Post
+app.post("/register", (req, res) => {
+	var email = req.body.email;
+	
+	//encrypts password
+	var password = bcrypt.hashSync(req.body.password, 10);
+
+	//Validation
+	for (key in users) {
+		if (users[key].email === email) {
+			res.status(400).send('This email is already in use');
+			return;
+		}
+	}
+
+	if (email === '' || password === '') {
+		res.status(400);
+		res.send('Please enter a valid email and password');
+		return;
+	}
+	
+	var randomID = generateRandomString();
+	users[randomID] = {id: randomID, email: email, password: password};
+	req.session.user_id = randomID;
+	res.redirect('/urls');
+});
+
 //Render login page
 app.get("/login", (req, res) => {
 	res.render("login");
@@ -192,26 +215,6 @@ app.post("/login", (req, res) => {
 app.post("/logout", (req, res) => {
 	req.session = null;
 	res.redirect("/urls");
-});
-
-//Main page checks for user to display their urls
-app.get("/urls", (req, res) => {
-	var validObj = urlsForUser(req.session["user_id"]);
-  var templateVars = { urls: validObj, user: users[req.session["user_id"]]};
-  res.render("urls_index", templateVars);
-});
-
-//Gets long url by inputting its short URL in browser
-app.get("/urls/:id", (req, res) => {
-	var validObj = urlsForUser(req.session["user_id"]);
-	var templateVars = {shortURL: req.params.id, urls: validObj, user: users[req.session["user_id"]]};
-	
-	//Only show urls for logged in user
-	if (validObj[req.params.id]) {
-		res.render("urls_show", templateVars);	
-	} else {
-			res.send("This doesn't belong to you");
-		}
 });
 
 //Hosted port
