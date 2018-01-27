@@ -19,12 +19,12 @@ app.use(cookieSession({
 //URLS
 var urlDatabase = {
  "b2xVn2": {"longURL": "http://www.lighthouselabs.ca",
-  					"shortURL": "b2xVn2",
-  					"user_ID": "userRandomID"},
+  			"shortURL": "b2xVn2",
+  			"user_ID": "userRandomID"},
  
  "9sm5xK": {"longURL": "http://www.google.com",
-  					"shortURL": "9sm5xK",
-  					"user_ID": "userRandomID"}
+  			"shortURL": "9sm5xK",
+  			"user_ID": "userRandomID"}
 };
 
 //USERS
@@ -78,16 +78,16 @@ app.get("/urls/new", (req, res) => {
 
   if (users[req.session["user_id"]]) {
 		res.render("urls_new", templateVars);
-  } else {
-  		res.redirect("/login");
-    }
+  } 
+
+  else {
+  	res.redirect("/login");
+  }
 });
 
 //Redirect to Website
 app.get("/u/:shortURL", (req, res) => {
-	//The randomly generated code
 	var shortURL = req.params.shortURL;
-	//It's long URL
 	var longURL = urlDatabase[shortURL]["longURL"];
 	res.redirect(longURL);
 });
@@ -175,7 +175,6 @@ app.post("/login", (req, res) => {
 
 //Logout/Clear Cookies
 app.post("/logout", (req, res) => {
-	// res.clearCookie("user_id");
 	req.session = null;
 	res.redirect("/urls");
 });
